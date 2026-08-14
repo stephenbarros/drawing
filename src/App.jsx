@@ -564,7 +564,7 @@ function PracticeTab({ streak, recentLog }) {
         <Card>
           <SectionLabel>Recent sessions</SectionLabel>
           {recentLog.map((e, i) => (
-            <div key={`${e.date}-${i}`} style={{ fontSize: 14, lineHeight: "20px", color: body, padding: `${space.md}px 0`, borderBottom: `1px solid ${canvasSoft}` }}>
+            <div key={`${e.date}-${i}`} style={{ fontSize: 14, lineHeight: "20px", color: body, padding: `${space.md}px 0`, borderBottom: i === recentLog.length - 1 ? "none" : `1px solid ${canvasSoft}` }}>
               <strong style={{ color: ink }}>{e.date}</strong> · {e.category} · {e.minutes} min
             </div>
           ))}
@@ -1000,17 +1000,17 @@ function ProgressTab({ log, streak }) {
           </div>
         )}
         {log.map((e, i) => (
-          <LogEntryRow key={`${e.date}-${i}`} entry={e} />
+          <LogEntryRow key={`${e.date}-${i}`} entry={e} last={i === log.length - 1} />
         ))}
       </Card>
     </div>
   );
 }
 
-function LogEntryRow({ entry: e }) {
+function LogEntryRow({ entry: e, last }) {
   const rating = Number(e.rating) || 0;
   return (
-    <div style={{ padding: `${space.md}px 0`, borderBottom: `1px solid ${canvasSoft}`, fontSize: 14, lineHeight: "20px" }}>
+    <div style={{ padding: `${space.md}px 0`, borderBottom: last ? "none" : `1px solid ${canvasSoft}`, fontSize: 14, lineHeight: "20px" }}>
       <div style={{ fontWeight: 600 }}>
         {e.date} · {e.category} · {e.minutes} min
         {rating > 0 && <> · {"●".repeat(rating)}{"○".repeat(5 - rating)}</>}
@@ -1084,8 +1084,16 @@ function LibraryTab() {
     <div>
       <Card>
         <SectionLabel>Drawing fundamentals</SectionLabel>
-        {LIBRARY.map((book) => (
-          <div key={book.title} style={{ padding: `${space.lg}px 0`, borderBottom: `1px solid ${canvasSoft}` }}>
+        {LIBRARY.map((book, i) => (
+          // The rule separates rows, so the last one has nothing to separate
+          // from — it would just draw a line above the card's padding.
+          <div
+            key={book.title}
+            style={{
+              padding: `${space.lg}px 0`,
+              borderBottom: i === LIBRARY.length - 1 ? "none" : `1px solid ${canvasSoft}`,
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
               <div>
                 <div style={{ fontFamily: displayFont, fontSize: 16, fontWeight: 600, lineHeight: "24px" }}>{book.title}</div>

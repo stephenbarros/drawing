@@ -182,6 +182,7 @@ components:
   list-row:
     padding: "{spacing.md} 0"
     borderBottom: "1px solid {colors.canvas-soft}"
+    lastChild: { borderBottom: none }
     typography: "{typography.body-sm}"
   inline-code:
     fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace"
@@ -407,6 +408,12 @@ second use of a treatment reserved for tertiary buttons. `object-fit: contain`
 keeps the whole page visible; cropping to fill would cut the plate that is the
 reason the thumbnail exists. Ticked lessons drop it to 45% opacity, matching
 the way their text goes `mute`.
+
+**`list-row`** — a row in a list inside a card, separated by a `canvas-soft`
+hairline. **The last row drops its rule.** The line exists to separate one row
+from the next, so on the final row it separates nothing and just draws a stray
+mark above the card's padding. This applies wherever the pattern is used — the
+Library book list, recent sessions, and the session log.
 
 **`progress-bar`** — 8px, pill, `canvas-soft` track, `primary` fill.
 
