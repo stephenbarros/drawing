@@ -5,6 +5,31 @@ records the reasoning, which is the part the code doesn't explain on its own.
 
 ## 2026-08-14
 
+### Thumbnails open a dialog instead of the raw file
+
+Tapping a page used to navigate to the JPEG. Getting back meant a browser
+back-navigation, which reloaded the app and collapsed the course you were
+reading — expensive for what is usually a two-second glance at a plate.
+
+It now opens over the course list, and the list is still there behind it.
+Scrim click, Escape, and a close button all dismiss; focus moves to the close
+button on open and returns to the thumbnail after, and the page behind stops
+scrolling while it is up.
+
+The thumbnail stays an `<a>` pointing at the real file, with a plain click
+intercepted. Cmd-click, middle-click and "open in new tab" therefore still work
+exactly as before, and the dialog carries an "Open full size" link — the old
+behaviour is still reachable, just no longer the only option.
+
+Two layout notes, both load-bearing. The image sizes itself and centres rather
+than filling the panel: these pages are portrait and the panel is not, so
+stretching it letterboxed every scan in sage. And its height is capped with
+`calc(100vh - 200px)` rather than a percentage — the panel's height comes from
+its content, so `max-height: 100%` on the image resolves against a height that
+depends on the image and collapses it to zero. Both are recorded in DESIGN.md,
+the second under Known gaps, since the 200px is the dialog's own chrome written
+as a constant.
+
 ### Page thumbnails on every lesson
 
 Each lesson row now carries a thumbnail of the page it cites, linking to the

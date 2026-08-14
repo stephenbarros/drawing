@@ -15,6 +15,7 @@ colors:
   mute: "#868685"
   canvas: "#ffffff"
   canvas-soft: "#e8ebe6"
+  scrim: "rgba(14, 15, 12, 0.6)"   # ink at 60% — dialog backdrop
 
 typography:
   font-family: "'Inter', system-ui, -apple-system, sans-serif"
@@ -191,6 +192,19 @@ components:
     frameBackground: "{colors.canvas-soft}"
     frameRadius: "{radius.sm}"
     doneOpacity: 0.45
+    opens: page-dialog
+  page-dialog:
+    scrimBackground: "{colors.scrim}"
+    scrimPadding: "{spacing.lg}"
+    zIndex: 50
+    panelBackground: "{colors.canvas}"
+    panelRadius: "{radius.xl}"
+    panelPadding: "{spacing.lg}"
+    panelWidth: "min(680px, 100%)"
+    imageMaxHeight: "calc(100vh - 200px)"
+    imageRadius: "{radius.lg}"
+    closeButton: "{components.disclosure-toggle}"   # same 36px sage circle
+    dismiss: [scrim-click, escape, close-button]
   heatmap-cell:
     size: 12
     radius: 4
@@ -347,8 +361,25 @@ the streak. Deliberately *not* `primary`, so status never impersonates an action
 closed and rotates 180° when open. A right-facing chevron would promise
 navigation to a new view; these panels expand in place. Carries `aria-expanded`.
 
+**`page-dialog`** — the cited page at full size, over the course list. It is a
+plain `card` on a `scrim`, so it introduces no new surface treatment: the panel
+is the same white, the same 24px radius, and the same absence of a shadow as
+every other container. The close control reuses `disclosure-toggle`'s geometry
+— a 36px sage circle — because a second circular icon button with different
+proportions would read as a different system.
+
+Scrim click, Escape, and the close button all dismiss it. All three matter: the
+dialog exists so a page is cheap to glance at, and a modal you have to aim at to
+leave is not cheap. It carries `role="dialog"`, `aria-modal`, and a label naming
+the lesson and page; focus moves to the close button on open and returns to the
+thumbnail on close, and the body stops scrolling while it is up.
+
+The image is bounded by `calc(100vh - 200px)` rather than a percentage, and
+sizes itself instead of filling the panel width. Both are deliberate — see
+Known gaps for what a percentage does here.
+
 **`lesson-thumb`** — the cited book page, sitting at the right end of a lesson
-row and linking to the full-size scan. The scans are white paper, and a white
+row and opening `page-dialog`. The scans are white paper, and a white
 image on a white card has no edge, so the thumb sits on a 3px `canvas-soft`
 frame: the same white-on-sage relationship the cards use against the page.
 That is the reason it is framed rather than bordered — a hairline would be the
@@ -391,6 +422,10 @@ Recorded so they read as decisions rather than drift.
    thumbnail component and no pattern for an image that is itself white. The
    frame is the system's own surface-contrast rule applied one level down,
    rather than a new treatment.
+7. **`scrim` is a new colour token.** The source defines no dialog, and so no
+   overlay. Rather than reach for a neutral grey, the scrim is `ink` at 60%,
+   which keeps the backdrop inside the palette. It is the only colour in the
+   app with an alpha channel.
 
 ## Do
 
@@ -426,3 +461,11 @@ Recorded so they read as decisions rather than drift.
   but it is not keyboard-operable — no tab focus, no Enter/Space. Fixing it
   means making the header a real `<button>`.
 - No focus-visible styling is defined anywhere.
+- **`page-dialog` does not trap focus.** It moves focus in on open and restores
+  it on close, and Escape works, but Tab can still walk out of the dialog into
+  the course list behind it. A real trap means cycling Tab within the panel.
+- **`page-dialog`'s image height is a viewport calculation**, so it encodes the
+  dialog's own chrome as a magic number. A percentage height is not an option:
+  the panel is sized by its content, so `max-height: 100%` on the image would
+  resolve against a height that depends on the image, and collapse it to zero.
+  Changing the caption or footer means revisiting the 200px.

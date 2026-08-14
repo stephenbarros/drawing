@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import logEntries from "./data/log.json";
 import {
   Pencil, BookOpen, TrendingUp, ExternalLink,
-  ChevronDown, Shuffle, Flame, Library
+  ChevronDown, Shuffle, Flame, Library, X
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -26,6 +26,9 @@ const body = "#454745";          // secondary text
 const mute = "#868685";          // captions, fine print
 const canvas = "#ffffff";        // card interiors
 const canvasSoft = "#e8ebe6";    // sage page background, dividers
+// Dialog backdrop. The system has no overlay token — this is `ink` at 60%,
+// so the scrim stays in the palette rather than introducing a neutral grey.
+const scrim = "rgba(14, 15, 12, 0.6)";
 
 // 4px base unit
 const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 };
@@ -540,7 +543,156 @@ function PracticeTab({ streak, recentLog }) {
 // ---------------------------------------------------------------------------
 // Courses tab
 // ---------------------------------------------------------------------------
+// page-dialog — the cited page at full size, over the course list rather than
+// in a new tab. Opening the raw file meant a browser back-navigation to return,
+// which reloaded the app and collapsed the course you were reading.
+//
+// The system defines no dialog, so this is ours: a `scrim` over the page and a
+// standard `card` holding the image. Escape and a click on the scrim both
+// close, which is the behaviour that makes it cheap to open one, glance, and
+// carry on. Modified clicks on the thumbnail are left alone, so cmd-click still
+// opens the file itself.
+function PageDialog({ preview, onClose }) {
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    if (!preview) return undefined;
+    const previouslyFocused = document.activeElement;
+    closeRef.current?.focus();
+
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+
+    // Stop the course list scrolling behind the dialog on touch devices.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      previouslyFocused?.focus?.();
+    };
+  }, [preview, onClose]);
+
+  if (!preview) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${preview.title} — ${preview.book}, ${preview.page}`}
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        background: scrim,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: space.lg,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: canvas,
+          borderRadius: radius.xl,
+          padding: space.lg,
+          width: "min(680px, 100%)",
+          maxHeight: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: space.md,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: space.md }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, lineHeight: "20px", color: ink }}>
+              {preview.title}
+            </div>
+            <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.xxs }}>
+              {preview.book} · {preview.page}
+            </div>
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              border: "none",
+              borderRadius: radius.pill,
+              background: canvasSoft,
+              color: ink,
+              cursor: "pointer",
+            }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* The pages are portrait and the panel is not, so the image sizes
+            itself and centres: stretching it to the panel width would letterbox
+            it in sage. minHeight:0 lets this flex child shrink below its
+            intrinsic height, which is what keeps a tall page inside the
+            viewport instead of pushing the caption off it. */}
+        <div style={{ display: "flex", justifyContent: "center", minHeight: 0 }}>
+          <img
+            src={preview.src}
+            alt={`${preview.book}, ${preview.page}`}
+            style={{
+              display: "block",
+              maxWidth: "100%",
+              // A viewport bound, not a percentage: the panel's height comes
+              // from its content, so a percentage height here would resolve
+              // against a height that depends on this image, and collapse it.
+              // The subtraction is the dialog's own chrome — scrim padding,
+              // caption, footer link, gaps.
+              maxHeight: "calc(100vh - 200px)",
+              width: "auto",
+              height: "auto",
+              borderRadius: radius.lg,
+            }}
+          />
+        </div>
+
+        <a
+          href={preview.src}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            alignSelf: "flex-start",
+            fontSize: 14,
+            fontWeight: 600,
+            lineHeight: "20px",
+            color: ink,
+            textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: space.xs,
+          }}
+        >
+          Open full size <ExternalLink size={13} />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
+  const [preview, setPreview] = useState(null);
+  // Stable identity so the dialog's key/focus effect doesn't re-run per render.
+  const closePreview = useCallback(() => setPreview(null), []);
+
   return (
     <div>
       {COURSES.map((course) => {
@@ -668,12 +820,26 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
                             without leaving the app. Lives in public/pages/,
                             named for the lesson id. stopPropagation keeps the
                             click from reaching the wrapping label, which would
-                            otherwise tick the checkbox on its way past. */}
+                            otherwise tick the checkbox on its way past.
+                            It stays an <a> to a real file so cmd-click and
+                            middle-click still open the page directly; a plain
+                            click is intercepted and opens the dialog instead. */}
                         <a
                           href={`${import.meta.env.BASE_URL}pages/${lesson.id}.jpg`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
+                          aria-haspopup="dialog"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                            e.preventDefault();
+                            setPreview({
+                              src: `${import.meta.env.BASE_URL}pages/${lesson.id}.jpg`,
+                              title: lesson.title,
+                              book: course.book,
+                              page: lesson.page,
+                            });
+                          }}
                           style={{
                             flexShrink: 0,
                             display: "block",
@@ -710,6 +876,8 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
           </Card>
         );
       })}
+
+      <PageDialog preview={preview} onClose={closePreview} />
     </div>
   );
 }
