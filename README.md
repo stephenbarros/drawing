@@ -1,9 +1,9 @@
 # drawing
 
-Studio Log — a self-guided drawing practice tracker. Courses built around
-a set of public-domain drawing fundamentals books, a daily exercise
-generator, and progress tracking (streaks, a practice heatmap, and
-optional photos of your own sketches).
+Pencil Practice — a practice ledger to improve drawing skills. Courses built
+around a set of public-domain drawing fundamentals books, a daily exercise
+generator, and progress tracking (streaks, a practice heatmap, and optional
+photos of your own sketches).
 
 Live at <https://stephenbarros.github.io/drawing/>.
 [DESIGN.md](DESIGN.md) is the source of truth for UI decisions;

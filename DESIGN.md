@@ -1,7 +1,7 @@
 ---
 version: 1
-name: studio-log-design
-description: The UI system for Studio Log — a drawing-practice tracker. Derived from the Wise design analysis at getdesign.md: a lime-green accent reserved for actions, sage-tinted canvas, white cards carrying no borders or shadows, and Inter at weight 900 for display. Documents the app's own components and the places it deliberately departs from its source.
+name: pencil-practice-design
+description: The UI system for Pencil Practice — a practice ledger to improve drawing skills. Derived from the Wise design analysis at getdesign.md: a lime-green accent reserved for actions, sage-tinted canvas, white cards carrying no borders or shadows, and Inter at weight 900 for display. Documents the app's own components and the places it deliberately departs from its source.
 
 colors:
   primary: "#9fe870"          # the one accent — actions only
@@ -94,6 +94,15 @@ components:
   wordmark:
     typography: "{typography.display-wordmark}"
     textColor: "{colors.ink}"
+    content: "Pencil Practice"       # name only — the tagline runs in the footer
+  footer:
+    marginTop: "{spacing.xxl}"
+    typography: "{typography.caption}"
+    textColor: "{colors.body}"        # not mute — see Known gaps
+    nameWeight: 600
+    nameColor: "{colors.ink}"
+    background: none                  # sits on the page, not in a card
+    divider: none
   tab:
     typography: "{typography.body-sm-strong}"
     padding: "{spacing.sm} var(--tab-pad, {spacing.lg})"
@@ -217,7 +226,7 @@ The tokens here derive from the Wise design analysis published at
 [getdesign.md/wise/design-md](https://getdesign.md/wise/design-md), an
 independent study of publicly observable patterns. That analysis is not
 affiliated with or endorsed by Wise; Wise and its logo are trademarks of their
-respective owner. This file documents how Studio Log applies those tokens,
+respective owner. This file documents how Pencil Practice applies those tokens,
 including where it departs from them — it is not a copy of the source analysis.
 
 **This file is the source of truth for UI decisions.** When the interface
@@ -227,9 +236,9 @@ top of `src/App.jsx`; the two must stay in step.
 
 ## Overview
 
-Studio Log is a practice ledger, so the interface should stay quiet and let the
-content — exercises, lesson lists, a density grid — carry the page. The system
-gives it three moves:
+Pencil Practice is a practice ledger, so the interface should stay quiet and
+let the content — exercises, lesson lists, a density grid — carry the page.
+The system gives it three moves:
 
 1. **Surface contrast instead of borders.** White cards sit on a sage canvas.
    Nothing has a shadow and almost nothing has a border. The difference between
@@ -361,6 +370,17 @@ the streak. Deliberately *not* `primary`, so status never impersonates an action
 closed and rotates 180° when open. A right-facing chevron would promise
 navigation to a new view; these panels expand in place. Carries `aria-expanded`.
 
+**`footer`** — the site's name, tagline and copyright, closing every tab. It
+sits directly on the sage canvas rather than in a `card`: it is a page fixture
+rather than content, and a white card would give the fine print more visual
+weight than the practice log above it. It takes no divider — the system's
+divider is `canvas-soft`, which is the surface this sits on, so the separation
+is spacing alone. The year is computed rather than written down.
+
+This is the one place that uses `body` where the system would say `mute`. See
+Known gaps: `mute` fails contrast at 12px, and there was no reason to add new
+text to that pile.
+
 **`page-dialog`** — the cited page at full size, over the course list. It is a
 plain `card` on a `scrim`, so it introduces no new surface treatment: the panel
 is the same white, the same 24px radius, and the same absence of a shadow as
@@ -450,8 +470,12 @@ Recorded so they read as decisions rather than drift.
   and **3.03:1** on `canvas-soft`, against a 4.5:1 requirement. It is used at
   12px, so the large-text 3:1 allowance does not apply. This is inherited from
   the source analysis, not introduced here, and it affects section labels,
-  captions, page references, and the tagline. Darkening `mute` toward `body`
+  captions, and page references. Darkening `mute` toward `body`
   (`#454745`, which measures 9.37:1) would fix it.
+
+  The `footer` opts out and uses `body`, so new fine print doesn't add to the
+  pile. That leaves the palette inconsistent until the rest follows — a
+  deliberate trade, recorded here so it doesn't read as an accident.
 
   Everything else checks out: `ink` on `canvas` 19.23:1, `body` on `canvas`
   9.37:1, `on-primary` on `primary` 13.05:1, `positive-deep` on `primary-pale`

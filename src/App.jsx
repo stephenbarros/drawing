@@ -30,6 +30,13 @@ const canvasSoft = "#e8ebe6";    // sage page background, dividers
 // so the scrim stays in the palette rather than introducing a neutral grey.
 const scrim = "rgba(14, 15, 12, 0.6)";
 
+// Site identity, in one place — the header, the document title and the footer
+// all read from here. The header shows the name alone; the tagline is a full
+// sentence and lives in the footer, where there is room for it.
+const siteName = "Pencil Practice";
+const siteTagline = "a practice ledger to improve drawing skills";
+const siteAuthor = "Stephen Barros";
+
 // 4px base unit
 const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 };
 const radius = { sm: 8, md: 12, lg: 16, xl: 24, pill: 9999 };
@@ -373,6 +380,7 @@ export default function StudioLog() {
         )}
         {tab === "progress" && <ProgressTab log={log} streak={streak} />}
         {tab === "library" && <LibraryTab />}
+        <Footer />
       </div>
     </div>
   );
@@ -393,7 +401,10 @@ function Header({ tab, setTab }) {
     // separation, so the bar takes no border and no shadow.
     <div style={{ background: canvas }}>
       <div style={{ maxWidth: 720, margin: "0 auto", padding: `${space.xl}px ${space.lg}px ${space.md}px` }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: space.sm, marginBottom: space.lg }}>
+        {/* The wordmark stands alone here. The tagline used to sit beside it
+            and now runs in the footer — at 28/900 the name carries the header
+            on its own, and the longer sentence was competing with it. */}
+        <div style={{ marginBottom: space.lg }}>
           <h1
             style={{
               fontFamily: displayFont,
@@ -403,9 +414,8 @@ function Header({ tab, setTab }) {
               margin: 0,
             }}
           >
-            Studio Log
+            {siteName}
           </h1>
-          <span style={{ fontSize: 14, color: mute }}>a practice ledger</span>
         </div>
         <div className="tab-bar" style={{ display: "flex", gap: space.xs }}>
           {tabs.map(({ id, label, icon: Icon }) => {
@@ -441,6 +451,39 @@ function Header({ tab, setTab }) {
         </div>
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Footer — carries the site's full name, tagline and copyright
+// ---------------------------------------------------------------------------
+// Sits on the sage canvas rather than in a card: it is a page fixture, not
+// content, and a white card here would give the fine print more weight than
+// the practice log above it. No divider above it either — the system's
+// divider is `canvas-soft`, which is the colour this sits on, so spacing does
+// the separating.
+//
+// The year is computed, not written down, so this doesn't quietly go stale.
+//
+// Deliberately `body` rather than `mute`: mute is the system's fine-print
+// colour but fails WCAG AA at this size (see DESIGN.md, Known gaps), and this
+// is new text — no reason to add to that.
+function Footer() {
+  return (
+    <footer
+      style={{
+        marginTop: space.xxl,
+        fontSize: 12,
+        lineHeight: "16px",
+        color: body,
+      }}
+    >
+      <div style={{ fontWeight: 600, color: ink }}>{siteName}</div>
+      <div style={{ marginTop: space.xxs }}>{siteTagline}</div>
+      <div style={{ marginTop: space.sm }}>
+        © {new Date().getFullYear()} {siteAuthor}
+      </div>
+    </footer>
   );
 }
 

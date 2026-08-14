@@ -1,4 +1,4 @@
-// Studio Log was originally built as a Claude.ai artifact, where
+// Pencil Practice was originally built as a Claude.ai artifact, where
 // `window.storage` is provided by the host environment. On a normal
 // deployed website that API doesn't exist, so this polyfills the same
 // shape (get/set/delete/list, all async, all namespaced under one

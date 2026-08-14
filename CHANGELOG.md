@@ -5,6 +5,32 @@ records the reasoning, which is the part the code doesn't explain on its own.
 
 ## 2026-08-14
 
+### Renamed to Pencil Practice, and added a footer
+
+"Studio Log" becomes **Pencil Practice**, with the tagline "a practice ledger
+to improve drawing skills". The name now lives in one place, `siteName` /
+`siteTagline` / `siteAuthor` in `App.jsx`, which the header, the document title
+and the footer all read from — previously the name was typed separately into
+the wordmark and `index.html`, which is how those drift apart.
+
+The tagline came out of the header. At 28/900 the wordmark carries that space
+on its own, and the new tagline is a full sentence rather than the three words
+that used to sit beside it — as a header lockup it competed with the name.
+
+It reappears in a new footer, closing every tab, alongside the name and a
+copyright line. The year is computed rather than written down. The footer sits
+directly on the sage canvas rather than in a card, because it is a page fixture
+and not content, and it takes no divider — the system's divider colour is the
+same sage it would sit on.
+
+One deliberate departure: the footer uses `body`, not the `mute` the system
+specifies for fine print. `mute` fails WCAG AA at 12px, which DESIGN.md has
+recorded as a known gap since the restyle, and there was no reason to add fresh
+text to it. That leaves the palette inconsistent until the existing captions
+follow, so it's written down rather than left looking accidental.
+
+Also added a `<meta name="description">`, which the page never had.
+
 ### Thumbnails open a dialog instead of the raw file
 
 Tapping a page used to navigate to the JPEG. Getting back meant a browser
