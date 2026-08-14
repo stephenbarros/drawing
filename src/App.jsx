@@ -1083,7 +1083,7 @@ function LibraryTab() {
   return (
     <div>
       <Card>
-        <SectionLabel>The five (plus one)</SectionLabel>
+        <SectionLabel>Drawing fundamentals</SectionLabel>
         {LIBRARY.map((book) => (
           <div key={book.title} style={{ padding: `${space.lg}px 0`, borderBottom: `1px solid ${canvasSoft}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
@@ -1112,7 +1112,10 @@ function LibraryTab() {
       </Card>
 
       <Card>
-        <SectionLabel>Getting these onto the iPad Mini 7</SectionLabel>
+        {/* Named for the platform on purpose: every step below is Apple-only
+            (Safari, Files, Apple Pencil, iCloud Drive), so a device-neutral
+            heading would promise instructions this section doesn't give. */}
+        <SectionLabel>Reading these on an iPad</SectionLabel>
         <ol style={{ fontSize: 16, lineHeight: "28px", paddingLeft: 20, margin: 0 }}>
           <li>Open each link in Safari, tap the share icon, choose <strong>Save to Files</strong>.</li>
           <li>Create one folder — e.g. <em>Files → On My iPad → Drawing Library</em> — so everything stays together and works offline.</li>

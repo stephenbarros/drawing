@@ -5,6 +5,19 @@ records the reasoning, which is the part the code doesn't explain on its own.
 
 ## 2026-08-14
 
+### Library section headings
+
+"The five (plus one)" becomes **Drawing fundamentals** — the old name counted
+the books instead of saying what they were, and the count had already stopped
+being self-explanatory.
+
+"Getting these onto the iPad Mini 7" becomes **Reading these on an iPad**. The
+specific model was never load-bearing. It stays Apple-specific rather than
+going device-neutral, because every step in it is: Safari, Save to Files, Apple
+Pencil, iCloud Drive. A heading like "how to view on your device" would promise
+Android and desktop instructions that the section doesn't contain — a heading
+should not write a cheque its content can't cash.
+
 ### Renamed to Pencil Practice, and added a footer
 
 "Studio Log" becomes **Pencil Practice**, with the tagline "a practice ledger
