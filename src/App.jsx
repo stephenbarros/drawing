@@ -6,7 +6,9 @@ import {
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
-// Design tokens — Wise design system (getdesign.md/wise/design-md)
+// Design tokens. See DESIGN.md in the repo root — it is the source of truth
+// for UI decisions and records why these values are what they are. Keep the
+// two in step: change DESIGN.md alongside anything changed here.
 //
 // Surface contrast carries elevation in this system: white cards sit on the
 // sage canvas and take no border and no shadow. Lime green is the single

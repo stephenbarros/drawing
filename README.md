@@ -5,8 +5,9 @@ a set of public-domain drawing fundamentals books, a daily exercise
 generator, and progress tracking (streaks, a practice heatmap, and
 optional photos of your own sketches).
 
-Live at <https://stephenbarros.github.io/drawing/>. See
-[CHANGELOG.md](CHANGELOG.md) for what has changed and why.
+Live at <https://stephenbarros.github.io/drawing/>.
+[DESIGN.md](DESIGN.md) is the source of truth for UI decisions;
+[CHANGELOG.md](CHANGELOG.md) records what has changed and why.
 
 ## Logging a session
 
