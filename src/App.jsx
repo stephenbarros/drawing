@@ -389,7 +389,6 @@ function Header({ tab, setTab }) {
     <div style={{ background: canvas }}>
       <div style={{ maxWidth: 720, margin: "0 auto", padding: `${space.xl}px ${space.lg}px ${space.md}px` }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: space.sm, marginBottom: space.lg }}>
-          <Pencil size={22} color={ink} strokeWidth={2.5} />
           <h1
             style={{
               fontFamily: displayFont,
@@ -414,7 +413,10 @@ function Header({ tab, setTab }) {
                   display: "flex",
                   alignItems: "center",
                   gap: space.sm,
-                  padding: `${space.sm}px ${space.lg}px`,
+                  // Custom property so the narrow-width media query can tighten
+                  // this — a plain padding rule there would lose to this inline
+                  // style, which is how the tabs crept back off-screen.
+                  padding: `${space.sm}px var(--tab-pad, ${space.lg}px)`,
                   fontFamily: bodyFont,
                   fontSize: 14,
                   fontWeight: 600,
@@ -544,6 +546,9 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
         const done = allLessons.filter((l) => progress[l.id]).length;
         const pct = Math.round((done / allLessons.length) * 100);
         const isOpen = openCourse === course.id;
+        // Lessons cite page numbers, so keep the scan one tap away. Every
+        // course book has a matching Library entry.
+        const book = LIBRARY.find((b) => b.title === course.book);
 
         return (
           <Card key={course.id} onClick={() => setOpenCourse(isOpen ? null : course.id)} clickable>
@@ -587,8 +592,33 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
 
             <div style={{ marginTop: space.lg, marginBottom: isOpen ? space.xl : 0 }}>
               <ProgressBar pct={pct} />
-              <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.sm }}>
-                {done} / {allLessons.length} lessons
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: space.md, marginTop: space.sm }}>
+                <div style={{ fontSize: 12, lineHeight: "16px", color: mute }}>
+                  {done} / {allLessons.length} lessons
+                </div>
+                {book && (
+                  // stopPropagation so opening the scan does not also toggle
+                  // the card the link sits inside.
+                  <a
+                    href={book.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: space.xs,
+                      flexShrink: 0,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      lineHeight: "20px",
+                      color: ink,
+                      textDecoration: "none",
+                    }}
+                  >
+                    PDF <ExternalLink size={13} />
+                  </a>
+                )}
               </div>
             </div>
 

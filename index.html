@@ -31,7 +31,7 @@
       /* All four tabs need ~426px; a phone offers ~335px, which pushed
          "Library" off-screen. Drop the icons and tighten padding to fit. */
       @media (max-width: 460px) {
-        .tab-bar button { padding-left: 14px; padding-right: 14px; }
+        .tab-bar button { --tab-pad: 10px; }
         .tab-bar button svg { display: none; }
       }
     </style>
