@@ -4,17 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Studio Log — Drawing Practice</title>
+
+    <!-- Inter carries both roles in this system: weight 900 stands in for the
+         proprietary Wise Sans display face, 400/600 cover body and labels. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       /* Inputs set width:100% but also carry padding and a border, so
          content-box sizing made them overflow their card. */
       *, *::before, *::after { box-sizing: border-box; }
       html, body, #root { height: 100%; margin: 0; }
-      body { background: #DCD1B2; }
+
+      /* canvas-soft — the sage page surface the white cards sit on. */
+      body {
+        background: #e8ebe6;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-feature-settings: "calt";
+        -webkit-font-smoothing: antialiased;
+      }
 
       /* All four tabs need ~426px; a phone offers ~335px, which pushed
          "Library" off-screen. Drop the icons and tighten padding to fit. */
       @media (max-width: 460px) {
-        .tab-bar button { padding-left: 10px; padding-right: 10px; font-size: 13px; }
+        .tab-bar button { padding-left: 14px; padding-right: 14px; }
         .tab-bar button svg { display: none; }
       }
     </style>

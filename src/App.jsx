@@ -1,23 +1,38 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import logEntries from "./data/log.json";
 import {
-  Pencil, BookOpen, Target, TrendingUp, ExternalLink,
+  Pencil, BookOpen, TrendingUp, ExternalLink,
   ChevronDown, ChevronRight, Shuffle, Flame, Library
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
-// Palette — graphite / conte-crayon studio, not a template default
+// Design tokens — Wise design system (getdesign.md/wise/design-md)
+//
+// Surface contrast carries elevation in this system: white cards sit on the
+// sage canvas and take no border and no shadow. Lime green is the single
+// brand accent and is reserved for primary actions — the semantic palette
+// covers status, so green is never repurposed as a "success" colour.
 // ---------------------------------------------------------------------------
-const paper = "#EAE2CC";        // aged paper
-const paperDark = "#DCD1B2";
-const ink = "#2A2822";          // warm charcoal
-const inkSoft = "#6B665A";      // graphite grey
-const red = "#A63D2F";          // conte crayon red — the one accent
-const redSoft = "#C97A6B";
-const line = "#C8BC9C";
+const primary = "#9fe870";       // Wise green — the one accent, CTAs only
+const primaryNeutral = "#c5edab";
+const primaryPale = "#e2f6d5";
+const positiveDeep = "#054d28";  // status text on pale-green surfaces
+const onPrimary = "#0e0f0c";
+const ink = "#0e0f0c";           // near-black with an olive cast
+const inkDeep = "#163300";       // deep forest green
+const body = "#454745";          // secondary text
+const mute = "#868685";          // captions, fine print
+const canvas = "#ffffff";        // card interiors
+const canvasSoft = "#e8ebe6";    // sage page background, dividers
 
-const displayFont = "'Source Serif 4', 'Iowan Old Style', Georgia, serif";
-const bodyFont = "'Inter', 'Helvetica Neue', sans-serif";
+// 4px base unit
+const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 };
+const radius = { sm: 8, md: 12, lg: 16, xl: 24, pill: 9999 };
+
+// Wise Sans is proprietary; the system names Inter 900 as its substitute for
+// display and Inter as its actual second face, so one family covers both.
+const displayFont = "'Inter', system-ui, -apple-system, sans-serif";
+const bodyFont = "'Inter', system-ui, -apple-system, sans-serif";
 
 // ---------------------------------------------------------------------------
 // Content — courses built around the five core books
@@ -323,7 +338,7 @@ export default function StudioLog() {
 
   if (!loaded) {
     return (
-      <div style={{ fontFamily: bodyFont, color: inkSoft, padding: 40 }}>
+      <div style={{ fontFamily: bodyFont, color: body, padding: 40 }}>
         Loading your studio…
       </div>
     );
@@ -333,15 +348,13 @@ export default function StudioLog() {
     <div
       style={{
         fontFamily: bodyFont,
-        background: paper,
+        background: canvasSoft,
         color: ink,
         minHeight: "100%",
-        borderRadius: 12,
-        overflow: "hidden",
       }}
     >
       <Header tab={tab} setTab={setTab} />
-      <div style={{ padding: "24px 20px 40px", maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ padding: `${space.xl}px ${space.lg}px ${space.xxxl}px`, maxWidth: 720, margin: "0 auto" }}>
         {tab === "practice" && (
           <PracticeTab streak={streak} recentLog={log.slice(0, 3)} />
         )}
@@ -371,26 +384,26 @@ function Header({ tab, setTab }) {
     { id: "library", label: "Library", icon: Library },
   ];
   return (
-    <div style={{ background: paperDark, borderBottom: `2px solid ${ink}` }}>
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "22px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 18 }}>
-          <Pencil size={20} color={red} strokeWidth={2.5} />
+    // nav-bar: white surface against the sage canvas. Surface contrast is the
+    // separation, so the bar takes no border and no shadow.
+    <div style={{ background: canvas }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: `${space.xl}px ${space.lg}px ${space.md}px` }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: space.sm, marginBottom: space.lg }}>
+          <Pencil size={22} color={ink} strokeWidth={2.5} />
           <h1
             style={{
               fontFamily: displayFont,
-              fontSize: 26,
-              fontWeight: 600,
-              letterSpacing: "-0.01em",
+              fontSize: 28,
+              fontWeight: 900,
+              letterSpacing: "-0.6px",
               margin: 0,
             }}
           >
             Studio Log
           </h1>
-          <span style={{ fontSize: 13, color: inkSoft, fontStyle: "italic" }}>
-            a practice ledger
-          </span>
+          <span style={{ fontSize: 14, color: mute }}>a practice ledger</span>
         </div>
-        <div className="tab-bar" style={{ display: "flex", gap: 2 }}>
+        <div className="tab-bar" style={{ display: "flex", gap: space.xs }}>
           {tabs.map(({ id, label, icon: Icon }) => {
             const active = tab === id;
             return (
@@ -400,23 +413,20 @@ function Header({ tab, setTab }) {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
-                  padding: "9px 16px",
+                  gap: space.sm,
+                  padding: `${space.sm}px ${space.lg}px`,
                   fontFamily: bodyFont,
                   fontSize: 14,
-                  fontWeight: 500,
-                  color: active ? ink : inkSoft,
-                  background: active ? paper : "transparent",
-                  border: `1.5px solid ${active ? ink : "transparent"}`,
-                  borderBottom: active ? `1.5px solid ${paper}` : "1.5px solid transparent",
-                  borderRadius: "8px 8px 0 0",
-                  marginBottom: -2,
+                  fontWeight: 600,
+                  lineHeight: "20px",
+                  color: active ? onPrimary : body,
+                  background: active ? primary : "transparent",
+                  border: "none",
+                  borderRadius: radius.pill,
                   cursor: "pointer",
-                  position: "relative",
-                  top: 2,
                 }}
               >
-                <Icon size={14} />
+                <Icon size={15} />
                 {label}
               </button>
             );
@@ -443,27 +453,31 @@ function PracticeTab({ streak, recentLog }) {
 
   return (
     <div>
+      {/* badge-positive — pale green pill, deep green text. Reserved for
+          status so the primary green stays exclusive to actions. */}
       {streak > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18, color: red, fontWeight: 600, fontSize: 14 }}>
-          <Flame size={16} />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: space.sm, marginBottom: space.lg, padding: `${space.xs}px ${space.md}px`, background: primaryPale, color: positiveDeep, borderRadius: radius.pill, fontWeight: 600, fontSize: 14, lineHeight: "20px" }}>
+          <Flame size={15} />
           {streak}-day streak
         </div>
       )}
 
       <Card>
         <SectionLabel>Pick a category</SectionLabel>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: space.sm, marginBottom: space.xl }}>
           {categories.map((c) => (
             <button
               key={c}
               onClick={() => { setCategory(c); setExercise(EXERCISES[c][0]); }}
               style={{
-                fontSize: 12.5,
-                padding: "6px 11px",
-                borderRadius: 20,
-                border: `1px solid ${c === category ? red : line}`,
-                background: c === category ? red : "transparent",
-                color: c === category ? paper : inkSoft,
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: "20px",
+                padding: `${space.sm}px ${space.lg}px`,
+                borderRadius: radius.pill,
+                border: "none",
+                background: c === category ? primary : canvasSoft,
+                color: c === category ? onPrimary : body,
                 cursor: "pointer",
                 fontFamily: bodyFont,
               }}
@@ -474,22 +488,25 @@ function PracticeTab({ streak, recentLog }) {
         </div>
 
         <SectionLabel>Today's exercise</SectionLabel>
+        {/* card-feature-green — the soft-green surface, used here to make the
+            day's prompt the focal moment on the tab. */}
         <div
           style={{
             fontFamily: displayFont,
-            fontSize: 19,
-            lineHeight: 1.4,
-            padding: "16px 18px",
-            background: paper,
-            border: `1.5px dashed ${line}`,
-            borderRadius: 8,
-            marginBottom: 10,
+            fontSize: 24,
+            fontWeight: 600,
+            lineHeight: "31.2px",
+            letterSpacing: "-0.48px",
+            padding: space.xl,
+            background: primaryPale,
+            borderRadius: radius.xl,
+            marginBottom: space.lg,
           }}
         >
           {exercise}
         </div>
-        <button onClick={rollExercise} style={ghostButtonStyle}>
-          <Shuffle size={13} /> Give me another
+        <button onClick={rollExercise} style={primaryButtonStyle}>
+          <Shuffle size={16} /> Give me another
         </button>
       </Card>
 
@@ -497,7 +514,7 @@ function PracticeTab({ streak, recentLog }) {
         <Card>
           <SectionLabel>Recent sessions</SectionLabel>
           {recentLog.map((e, i) => (
-            <div key={`${e.date}-${i}`} style={{ fontSize: 13, color: inkSoft, padding: "6px 0", borderBottom: `1px solid ${line}` }}>
+            <div key={`${e.date}-${i}`} style={{ fontSize: 14, lineHeight: "20px", color: body, padding: `${space.md}px 0`, borderBottom: `1px solid ${canvasSoft}` }}>
               <strong style={{ color: ink }}>{e.date}</strong> · {e.category} · {e.minutes} min
             </div>
           ))}
@@ -506,7 +523,7 @@ function PracticeTab({ streak, recentLog }) {
 
       <Card>
         <SectionLabel>Logging a session</SectionLabel>
-        <div style={{ fontSize: 13.5, color: inkSoft, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 16, lineHeight: "24px", color: body }}>
           Add an entry to <code style={codeStyle}>src/data/log.json</code> and commit —
           it appears here and on Progress once the site rebuilds. The format is in
           the README.
@@ -532,19 +549,19 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
           <Card key={course.id} onClick={() => setOpenCourse(isOpen ? null : course.id)} clickable>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", cursor: "pointer" }}>
               <div>
-                <div style={{ fontFamily: displayFont, fontSize: 18, fontWeight: 600 }}>
+                <div style={{ fontFamily: displayFont, fontSize: 24, fontWeight: 600, lineHeight: "31.2px", letterSpacing: "-0.48px" }}>
                   {course.book}
                 </div>
-                <div style={{ fontSize: 12.5, color: inkSoft, marginTop: 2 }}>
+                <div style={{ fontSize: 14, lineHeight: "20px", color: body, marginTop: space.xs }}>
                   {course.author} — {course.tagline}
                 </div>
               </div>
-              {isOpen ? <ChevronDown size={18} color={inkSoft} /> : <ChevronRight size={18} color={inkSoft} />}
+              {isOpen ? <ChevronDown size={20} color={body} /> : <ChevronRight size={20} color={body} />}
             </div>
 
-            <div style={{ marginTop: 12, marginBottom: isOpen ? 16 : 0 }}>
+            <div style={{ marginTop: space.lg, marginBottom: isOpen ? space.xl : 0 }}>
               <ProgressBar pct={pct} />
-              <div style={{ fontSize: 11.5, color: inkSoft, marginTop: 4 }}>
+              <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.sm }}>
                 {done} / {allLessons.length} lessons
               </div>
             </div>
@@ -553,7 +570,7 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
               <div onClick={(e) => e.stopPropagation()}>
                 {course.modules.map((mod) => (
                   <div key={mod.id} style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: ink, marginBottom: 6 }}>
+                    <div style={{ fontSize: 14, lineHeight: "20px", fontWeight: 600, color: ink, marginBottom: space.sm }}>
                       {mod.title}
                     </div>
                     {mod.lessons.map((lesson) => (
@@ -562,25 +579,28 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
-                          gap: 9,
-                          fontSize: 13.5,
-                          padding: "5px 0",
+                          gap: space.md,
+                          fontSize: 14,
+                          lineHeight: "20px",
+                          padding: `${space.sm}px 0`,
                           cursor: "pointer",
-                          color: progress[lesson.id] ? inkSoft : ink,
+                          color: progress[lesson.id] ? mute : ink,
                         }}
                       >
+                        {/* accent is inkDeep, not primary: a white tick on the
+                            pale brand green would not carry enough contrast. */}
                         <input
                           type="checkbox"
                           checked={!!progress[lesson.id]}
                           onChange={() => toggleLesson(lesson.id)}
-                          style={{ accentColor: red, width: 15, height: 15, marginTop: 2, flexShrink: 0 }}
+                          style={{ accentColor: inkDeep, width: 16, height: 16, marginTop: 2, flexShrink: 0 }}
                         />
                         <span style={{ flex: 1 }}>
                           <span style={{ textDecoration: progress[lesson.id] ? "line-through" : "none" }}>
                             {lesson.title}
                           </span>
                           {lesson.page && (
-                            <span style={{ display: "block", fontSize: 11, color: inkSoft, marginTop: 1, fontStyle: "italic" }}>
+                            <span style={{ display: "block", fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.xxs }}>
                               {lesson.page}
                             </span>
                           )}
@@ -621,17 +641,19 @@ function ProgressTab({ log, streak }) {
   const columns = [];
   for (let i = 0; i < cells.length; i += 7) columns.push(cells.slice(i, i + 7));
 
+  // Density ramp built from the brand greens — empty days fall back to the
+  // sage canvas so the grid reads as one surface.
   const shade = (m) => {
-    if (m <= 0) return paperDark;
-    if (m < 15) return "#B9AE8A";
-    if (m < 30) return "#8C8264";
-    if (m < 60) return inkSoft;
-    return ink;
+    if (m <= 0) return canvasSoft;
+    if (m < 15) return primaryPale;
+    if (m < 30) return primaryNeutral;
+    if (m < 60) return primary;
+    return inkDeep;
   };
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+      <div style={{ display: "flex", gap: space.md, marginBottom: space.lg }}>
         <StatCard label="Streak" value={`${streak}d`} />
         <StatCard label="Sessions" value={totalSessions} />
         <StatCard label="Total time" value={`${Math.round(totalMinutes / 60)}h`} />
@@ -639,7 +661,7 @@ function ProgressTab({ log, streak }) {
 
       <Card>
         <SectionLabel>Last 12 weeks</SectionLabel>
-        <div style={{ display: "flex", gap: 3, overflowX: "auto", padding: "8px 0" }}>
+        <div style={{ display: "flex", gap: 3, overflowX: "auto", padding: `${space.sm}px 0` }}>
           {columns.map((col, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {col.map((c) => (
@@ -647,26 +669,25 @@ function ProgressTab({ log, streak }) {
                   key={c.date}
                   title={`${c.date} — ${c.minutes} min`}
                   style={{
-                    width: 11,
-                    height: 11,
-                    borderRadius: 2,
+                    width: 12,
+                    height: 12,
+                    borderRadius: 4,
                     background: shade(c.minutes),
-                    border: `1px solid ${line}`,
                   }}
                 />
               ))}
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 11, color: inkSoft, marginTop: 6 }}>
-          darker mark = more graphite laid down that day
+        <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.sm }}>
+          deeper green = more time at the board that day
         </div>
       </Card>
 
       <Card>
         <SectionLabel>Session log</SectionLabel>
         {log.length === 0 && (
-          <div style={{ fontSize: 13.5, color: inkSoft, padding: "10px 0" }}>
+          <div style={{ fontSize: 16, lineHeight: "24px", color: body, padding: `${space.sm}px 0` }}>
             Nothing logged yet — add your first entry to{" "}
             <code style={codeStyle}>src/data/log.json</code>.
           </div>
@@ -682,13 +703,13 @@ function ProgressTab({ log, streak }) {
 function LogEntryRow({ entry: e }) {
   const rating = Number(e.rating) || 0;
   return (
-    <div style={{ padding: "10px 0", borderBottom: `1px solid ${line}`, fontSize: 13.5 }}>
-      <div>
-        <strong>{e.date}</strong> · {e.category} · {e.minutes} min
+    <div style={{ padding: `${space.md}px 0`, borderBottom: `1px solid ${canvasSoft}`, fontSize: 14, lineHeight: "20px" }}>
+      <div style={{ fontWeight: 600 }}>
+        {e.date} · {e.category} · {e.minutes} min
         {rating > 0 && <> · {"●".repeat(rating)}{"○".repeat(5 - rating)}</>}
       </div>
-      {e.exercise && <div style={{ color: inkSoft, marginTop: 2 }}>{e.exercise}</div>}
-      {e.notes && <div style={{ color: inkSoft, fontStyle: "italic", marginTop: 2 }}>{e.notes}</div>}
+      {e.exercise && <div style={{ color: body, marginTop: space.xxs }}>{e.exercise}</div>}
+      {e.notes && <div style={{ color: mute, marginTop: space.xxs }}>{e.notes}</div>}
       {e.photo && (
         // Sketches live in public/sketches/ and ship with the site. BASE_URL
         // keeps these correct under the /drawing/ sub-path.
@@ -696,7 +717,7 @@ function LogEntryRow({ entry: e }) {
           src={`${import.meta.env.BASE_URL}sketches/${e.photo}`}
           alt={`Sketch from ${e.date}`}
           loading="lazy"
-          style={{ maxWidth: "100%", borderRadius: 8, border: `1.5px solid ${ink}`, marginTop: 10 }}
+          style={{ maxWidth: "100%", borderRadius: radius.lg, display: "block", marginTop: space.md }}
         />
       )}
     </div>
@@ -757,33 +778,26 @@ function LibraryTab() {
       <Card>
         <SectionLabel>The five (plus one)</SectionLabel>
         {LIBRARY.map((book) => (
-          <div key={book.title} style={{ padding: "12px 0", borderBottom: `1px solid ${line}` }}>
+          <div key={book.title} style={{ padding: `${space.lg}px 0`, borderBottom: `1px solid ${canvasSoft}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
               <div>
-                <div style={{ fontFamily: displayFont, fontSize: 16, fontWeight: 600 }}>{book.title}</div>
-                <div style={{ fontSize: 12.5, color: inkSoft, marginTop: 1 }}>{book.author}</div>
-                <div style={{ fontSize: 12.5, color: ink, marginTop: 4 }}>{book.note}</div>
-                <div style={{ fontSize: 11, color: inkSoft, marginTop: 4, fontStyle: "italic" }}>{book.source}</div>
+                <div style={{ fontFamily: displayFont, fontSize: 16, fontWeight: 600, lineHeight: "24px" }}>{book.title}</div>
+                <div style={{ fontSize: 14, lineHeight: "20px", color: body, marginTop: space.xxs }}>{book.author}</div>
+                <div style={{ fontSize: 14, lineHeight: "20px", color: ink, marginTop: space.xs }}>{book.note}</div>
+                <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.xs }}>{book.source}</div>
               </div>
               <a
                 href={book.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
+                  ...ghostButtonStyle,
                   flexShrink: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                  fontSize: 12,
-                  color: red,
-                  border: `1px solid ${red}`,
-                  borderRadius: 6,
-                  padding: "6px 10px",
                   textDecoration: "none",
                   whiteSpace: "nowrap",
                 }}
               >
-                Open <ExternalLink size={11} />
+                Open <ExternalLink size={14} />
               </a>
             </div>
           </div>
@@ -792,7 +806,7 @@ function LibraryTab() {
 
       <Card>
         <SectionLabel>Getting these onto the iPad Mini 7</SectionLabel>
-        <ol style={{ fontSize: 13.5, lineHeight: 1.9, paddingLeft: 18, margin: 0 }}>
+        <ol style={{ fontSize: 16, lineHeight: "28px", paddingLeft: 20, margin: 0 }}>
           <li>Open each link in Safari, tap the share icon, choose <strong>Save to Files</strong>.</li>
           <li>Create one folder — e.g. <em>Files → On My iPad → Drawing Library</em> — so everything stays together and works offline.</li>
           <li>For annotating over the pages (tracing proportions, marking angles), open the PDF from Files into <strong>GoodNotes</strong>, <strong>Notability</strong>, or <strong>PDF Expert</strong> — all handle Apple Pencil markup well and re-save back to the same folder.</li>
@@ -800,7 +814,7 @@ function LibraryTab() {
         </ol>
       </Card>
 
-      <div style={{ fontSize: 11.5, color: inkSoft, marginTop: 4, lineHeight: 1.6 }}>
+      <div style={{ fontSize: 12, lineHeight: "16px", color: mute, marginTop: space.xs }}>
         All titles above are public-domain scans hosted by Wikimedia Commons or Internet Archive —
         free to download and keep offline.
       </div>
@@ -811,16 +825,17 @@ function LibraryTab() {
 // ---------------------------------------------------------------------------
 // Small shared UI pieces
 // ---------------------------------------------------------------------------
+// card-content: white on sage, no border, no shadow — the surface contrast is
+// the elevation. 24px is the system's canonical radius.
 function Card({ children, onClick, clickable }) {
   return (
     <div
       onClick={onClick}
       style={{
-        background: "rgba(255,255,255,0.35)",
-        border: `1.5px solid ${ink}`,
-        borderRadius: 10,
-        padding: 18,
-        marginBottom: 14,
+        background: canvas,
+        borderRadius: radius.xl,
+        padding: space.xl,
+        marginBottom: space.lg,
         cursor: clickable ? "pointer" : "default",
       }}
     >
@@ -833,12 +848,13 @@ function SectionLabel({ children }) {
   return (
     <div
       style={{
-        fontSize: 11,
-        letterSpacing: "0.08em",
+        fontSize: 12,
+        lineHeight: "16px",
+        letterSpacing: "0.06em",
         textTransform: "uppercase",
-        color: inkSoft,
+        color: mute,
         fontWeight: 600,
-        marginBottom: 10,
+        marginBottom: space.md,
       }}
     >
       {children}
@@ -848,20 +864,27 @@ function SectionLabel({ children }) {
 
 function ProgressBar({ pct }) {
   return (
-    <div style={{ height: 6, background: paperDark, borderRadius: 3, overflow: "hidden", border: `1px solid ${line}` }}>
-      <div style={{ height: "100%", width: `${pct}%`, background: red, transition: "width 0.3s" }} />
+    <div style={{ height: 8, background: canvasSoft, borderRadius: radius.pill, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${pct}%`, background: primary, transition: "width 0.3s" }} />
     </div>
   );
 }
 
+// White on sage like every other card — a sage fill here would sit on the
+// sage canvas with no contrast, and contrast is what carries elevation.
 function StatCard({ label, value }) {
   return (
-    <div style={{ flex: 1, background: "rgba(255,255,255,0.35)", border: `1.5px solid ${ink}`, borderRadius: 10, padding: "14px 12px", textAlign: "center" }}>
-      <div style={{ fontFamily: displayFont, fontSize: 24, fontWeight: 700 }}>{value}</div>
-      <div style={{ fontSize: 11, color: inkSoft, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>{label}</div>
+    <div style={{ flex: 1, background: canvas, borderRadius: radius.xl, padding: `${space.lg}px ${space.md}px`, textAlign: "center" }}>
+      <div style={{ fontFamily: displayFont, fontSize: 32, fontWeight: 900, lineHeight: "38px", letterSpacing: "-0.96px" }}>{value}</div>
+      <div style={{ fontSize: 12, lineHeight: "16px", color: body, marginTop: space.xxs }}>{label}</div>
     </div>
   );
 }
 
-const codeStyle = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "0.92em", background: paperDark, padding: "1px 5px", borderRadius: 4, color: ink };
-const ghostButtonStyle = { display: "inline-flex", alignItems: "center", gap: 6, fontFamily: bodyFont, fontSize: 12.5, fontWeight: 500, padding: "6px 12px", background: "transparent", color: inkSoft, border: `1px solid ${line}`, borderRadius: 7, cursor: "pointer" };
+const codeStyle = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "0.92em", background: canvasSoft, padding: "2px 6px", borderRadius: radius.sm, color: ink };
+
+// button-tertiary — white fill, 1px ink hairline, 24px pill-rectangle.
+const ghostButtonStyle = { display: "inline-flex", alignItems: "center", gap: space.sm, fontFamily: bodyFont, fontSize: 14, fontWeight: 600, lineHeight: "20px", padding: `${space.sm}px ${space.lg}px`, background: canvas, color: ink, border: `1px solid ${ink}`, borderRadius: radius.xl, cursor: "pointer" };
+
+// button-primary — the lime-green CTA pill.
+const primaryButtonStyle = { display: "inline-flex", alignItems: "center", gap: space.sm, fontFamily: bodyFont, fontSize: 16, fontWeight: 600, lineHeight: "24px", padding: `${space.md}px ${space.xl}px`, background: primary, color: onPrimary, border: "none", borderRadius: radius.xl, cursor: "pointer" };
