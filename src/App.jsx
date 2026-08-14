@@ -1019,7 +1019,7 @@ function LogEntryRow({ entry: e, last }) {
       {e.notes && <div style={{ color: mute, marginTop: space.xxs }}>{e.notes}</div>}
       {e.photo && (
         // Sketches live in public/sketches/ and ship with the site. BASE_URL
-        // keeps these correct under the /drawing/ sub-path.
+        // keeps these correct wherever the site is mounted.
         <img
           src={`${import.meta.env.BASE_URL}sketches/${e.photo}`}
           alt={`Sketch from ${e.date}`}

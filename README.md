@@ -5,7 +5,7 @@ around a set of public-domain drawing fundamentals books, a daily exercise
 generator, and progress tracking (streaks, a practice heatmap, and optional
 photos of your own sketches).
 
-Live at <https://stephenbarros.github.io/drawing/>.
+Live at <https://pencilpractice.com/>.
 [DESIGN.md](DESIGN.md) is the source of truth for UI decisions;
 [CHANGELOG.md](CHANGELOG.md) records what has changed and why.
 
@@ -63,14 +63,25 @@ npm run preview   # sanity-check the production build locally
 
 ## Deploying to GitHub Pages
 
-Live at <https://stephenbarros.github.io/drawing/>.
+Live at <https://pencilpractice.com/>.
 
 Deploys happen automatically: every push to `main` runs
 `.github/workflows/deploy.yml`, which builds and publishes `dist/` via
 GitHub Pages (Pages source is set to "GitHub Actions" — there is no
-`gh-pages` branch). `base: "/drawing/"` in `vite.config.js` is what makes
-asset paths resolve under the repo sub-path; if the repo is ever renamed,
-that value has to change with it.
+`gh-pages` branch).
+
+The site is served from a custom apex domain, so `base: "/"` in
+`vite.config.js` resolves asset paths at the root. Two things keep the
+domain working, and both have to survive a rebuild:
+
+- [`public/CNAME`](public/CNAME) holds `pencilpractice.com`. Vite copies
+  `public/` into `dist/`, so the file lands in the published artifact. Because
+  this deploys from an Actions artifact rather than a branch, a CNAME committed
+  anywhere else would not be published — deleting this file drops the custom
+  domain on the next deploy.
+- The domain is also set in the repo's Pages settings, with DNS at GoDaddy:
+  four `A` records on the apex pointing at GitHub's Pages IPs, plus a `www`
+  `CNAME` to `stephenbarros.github.io`.
 
 ## Structure
 
@@ -81,10 +92,10 @@ src/
   data/log.json            — your session log (edit this to log practice)
   lib/storagePolyfill.js   — localStorage-backed window.storage shim
 public/
-  sketches/                — sketch photos, served at /drawing/sketches/
+  CNAME                    — custom domain for GitHub Pages
+  sketches/                — sketch photos, served at /sketches/
   pages/                   — book pages cited by each lesson, one JPEG per
-                             lesson id (e.g. fp-1-1.jpg), served at
-                             /drawing/pages/
+                             lesson id (e.g. fp-1-1.jpg), served at /pages/
 ```
 
 ## Lesson page images
