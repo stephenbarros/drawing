@@ -2,3 +2,8 @@ node_modules/
 dist/
 .DS_Store
 *.local
+
+# Per-machine Claude Code config. `*.local` above does not cover this —
+# it matches names ending in .local, not settings.local.json. This repo
+# is public, so keep local permission rules out of it.
+.claude/settings.local.json
