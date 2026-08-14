@@ -5,6 +5,50 @@ records the reasoning, which is the part the code doesn't explain on its own.
 
 ## 2026-08-14
 
+### Page thumbnails on every lesson
+
+Each lesson row now carries a thumbnail of the page it cites, linking to the
+full-size scan. 83 lessons, 83 images in `public/pages/`, named for the lesson
+id. 9.2 MB total, at ~1000px on the long edge and JPEG quality 55 — legible
+enough to read a plate, small enough that the repo does not regret it.
+
+Sourcing the right page turned out to be the whole job. Three separate
+numbering schemes are in play:
+
+- **Fun With a Pencil** — scan page equals printed page. Verified against the
+  folio printed on each page used.
+- **Successful Drawing, Figure Drawing, Creative Illustration** — the `~p. N`
+  refs in `COURSES` are *PDF page indices*, not printed pages. They read like
+  rough estimates and are not: PDF page 40 of Successful Drawing is
+  "Architects' Perspective", exactly what `sd-2-2` asks for. All 31 of these
+  matched their lesson text on inspection.
+- **Drawing the Head and Hands, Constructive Anatomy** — printed pages, needing
+  an offset. Constructive Anatomy is a constant +4. Head and Hands is **not
+  constant**: it runs −4 early and −14 by the end, because the scan skips pages
+  the printed numbering still counts. A fixed offset derived from one probe
+  looked right in the first chapter and was eight pages out by the last.
+
+Since both of those scans are image-only (no text layer), the offsets came from
+OCR'ing the footer of all 365 pages with the system Vision framework and reading
+the folio each page prints on itself, then interpolating across unnumbered
+plates. Worth knowing if this is ever redone: the offset is not monotonic in
+either direction — inserted plates push it one way, skipped pages the other — so
+a filter assuming a fixed drift direction silently locks onto a wrong constant.
+
+Verified by OCR'ing the heading off all 83 generated images and diffing against
+the lesson titles, plus visual checks on the plate pages, which carry no heading
+to read.
+
+Each thumbnail is the first page of the range its lesson cites. Where a Head and
+Hands lesson names a plate, it points at that plate instead — the cited ranges
+there often open on a page of prose, and the plate is the reason the lesson
+sends you to the book.
+
+Text-heavy pages elsewhere were left alone: they were checked by OCR character
+count, and the six dense ones in Figure Drawing and Creative Illustration are
+the correct page — Loomis simply wrote a page of prose there, and `fd-3-1`
+really is "Variety in the Standing Pose".
+
 ### Corrected 25 lesson page references
 
 Rendering each cited page beside its lesson made it obvious where the citation

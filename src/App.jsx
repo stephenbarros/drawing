@@ -663,6 +663,44 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
                             </span>
                           )}
                         </span>
+                        {/* lesson-thumb — the cited page, scanned from the book
+                            itself, so the exercise has a visual reference
+                            without leaving the app. Lives in public/pages/,
+                            named for the lesson id. stopPropagation keeps the
+                            click from reaching the wrapping label, which would
+                            otherwise tick the checkbox on its way past. */}
+                        <a
+                          href={`${import.meta.env.BASE_URL}pages/${lesson.id}.jpg`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            flexShrink: 0,
+                            display: "block",
+                            lineHeight: 0,
+                            padding: 3,
+                            // The scans are white paper on a white card, which
+                            // would leave them edgeless. Seating them on sage
+                            // reuses the system's white-on-canvas-soft
+                            // relationship rather than adding a border.
+                            background: canvasSoft,
+                            borderRadius: radius.sm,
+                            opacity: progress[lesson.id] ? 0.45 : 1,
+                          }}
+                        >
+                          <img
+                            src={`${import.meta.env.BASE_URL}pages/${lesson.id}.jpg`}
+                            alt={`${course.book}, ${lesson.page}`}
+                            loading="lazy"
+                            style={{
+                              width: 52,
+                              height: 68,
+                              objectFit: "contain",
+                              borderRadius: 4,
+                              display: "block",
+                            }}
+                          />
+                        </a>
                       </label>
                     ))}
                   </div>

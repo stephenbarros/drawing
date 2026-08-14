@@ -182,6 +182,15 @@ components:
   sketch-image:
     radius: "{radius.lg}"
     maxWidth: 100%
+  lesson-thumb:
+    width: 52
+    height: 68
+    objectFit: contain
+    radius: 4
+    framePadding: 3
+    frameBackground: "{colors.canvas-soft}"
+    frameRadius: "{radius.sm}"
+    doneOpacity: 0.45
   heatmap-cell:
     size: 12
     radius: 4
@@ -338,6 +347,16 @@ the streak. Deliberately *not* `primary`, so status never impersonates an action
 closed and rotates 180° when open. A right-facing chevron would promise
 navigation to a new view; these panels expand in place. Carries `aria-expanded`.
 
+**`lesson-thumb`** — the cited book page, sitting at the right end of a lesson
+row and linking to the full-size scan. The scans are white paper, and a white
+image on a white card has no edge, so the thumb sits on a 3px `canvas-soft`
+frame: the same white-on-sage relationship the cards use against the page.
+That is the reason it is framed rather than bordered — a hairline would be the
+second use of a treatment reserved for tertiary buttons. `object-fit: contain`
+keeps the whole page visible; cropping to fill would cut the plate that is the
+reason the thumbnail exists. Ticked lessons drop it to 45% opacity, matching
+the way their text goes `mute`.
+
 **`progress-bar`** — 8px, pill, `canvas-soft` track, `primary` fill.
 
 **`heatmap-cell`** — 12px squares on a 3px gap, ramped by minutes practised:
@@ -368,6 +387,10 @@ Recorded so they read as decisions rather than drift.
    collapsible, or disclosure component, and gives no icon guidance at all. The
    chevron-direction convention is general UI convention, not something
    inherited.
+6. **`lesson-thumb` frames an image in `canvas-soft`.** The source has no
+   thumbnail component and no pattern for an image that is itself white. The
+   frame is the system's own surface-contrast rule applied one level down,
+   rather than a new treatment.
 
 ## Do
 

@@ -82,4 +82,20 @@ src/
   lib/storagePolyfill.js   — localStorage-backed window.storage shim
 public/
   sketches/                — sketch photos, served at /drawing/sketches/
+  pages/                   — book pages cited by each lesson, one JPEG per
+                             lesson id (e.g. fp-1-1.jpg), served at
+                             /drawing/pages/
 ```
+
+## Lesson page images
+
+Every lesson shows a thumbnail of the book page it cites, linking to the
+full-size scan. The images are extracted from the same public-domain scans the
+Library tab links to — Wikimedia Commons and the Internet Archive — and are
+named for the lesson id, so `public/pages/fp-1-1.jpg` is what `fp-1-1` displays.
+
+Adding or repointing a lesson means adding a matching JPEG. Beware that the
+page reference in `COURSES` does not mean the same thing in every book: for
+Successful Drawing, Figure Drawing and Creative Illustration the `~p. N` refs
+are PDF page indices, while the other three cite printed page numbers, two of
+which need a per-page offset. [CHANGELOG.md](CHANGELOG.md) has the details.
