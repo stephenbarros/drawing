@@ -1,4 +1,4 @@
-# drawing
+# pencilpractice
 
 Pencil Practice — a practice ledger to improve drawing skills. Courses built
 around a set of public-domain drawing fundamentals books, a daily exercise
