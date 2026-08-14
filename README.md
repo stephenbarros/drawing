@@ -5,6 +5,9 @@ a set of public-domain drawing fundamentals books, a daily exercise
 generator, and progress tracking (streaks, a practice heatmap, and
 optional photos of your own sketches).
 
+Live at <https://stephenbarros.github.io/drawing/>. See
+[CHANGELOG.md](CHANGELOG.md) for what has changed and why.
+
 ## Logging a session
 
 The session log lives in [`src/data/log.json`](src/data/log.json) and is

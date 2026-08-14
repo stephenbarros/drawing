@@ -1,0 +1,123 @@
+# Changelog
+
+What changed and why. The commit history has the mechanical detail; this
+records the reasoning, which is the part the code doesn't explain on its own.
+
+## 2026-08-14
+
+### Per-course PDF links
+
+Each course cell links to its scan, opposite the lesson count. Lessons cite
+page numbers, so the book belongs one tap away rather than a trip to the
+Library tab. Courses match Library entries by title — all six resolve. The
+link stops propagation so opening it doesn't also expand the card it sits in.
+
+Removed the pencil icon beside the "Studio Log" title.
+
+### Tab bar overflow at 375px — real fix
+
+The narrow-width media query had been setting `padding-left/right` on the tab
+buttons, which never applied: the buttons carry an inline `padding`, and inline
+styles win. The icon-hiding rule beside it was doing all the work. That held
+until the Wise restyle brought in Inter, whose wider metrics pushed the row 3px
+past the viewport.
+
+The inline padding now reads `var(--tab-pad, 16px)` and the media query sets
+`--tab-pad: 10px`. Custom properties resolve at computed-value time, so this
+overrides the inline style without `!important`.
+
+## 2026-08-13
+
+### Course caret now reads as expand/collapse
+
+A right-facing chevron promises navigation to a new view; these cards expand in
+place. Collapsed now shows a down chevron that rotates to point up when open.
+
+The Wise design system defines no accordion or disclosure pattern and gives no
+icon guidance at all, so the direction convention here is general UI convention,
+not something the system specifies. The chevron sits in `button-icon-circular`,
+which *is* a system primitive — with a sage fill instead of the specified canvas
+fill, which would vanish against a white card.
+
+Known gap: the card header is a `div` with `aria-expanded`, so the state is
+announced but the control isn't keyboard-operable. Making it a real `<button>`
+means changing how `Card` composes children.
+
+### Restyled with the Wise design system
+
+Tokens from [getdesign.md/wise/design-md](https://getdesign.md/wise/design-md):
+lime `#9fe870` primary, sage `#e8ebe6` canvas, white cards, ink `#0e0f0c`, a 4px
+spacing scale, 24px as the canonical card/button radius.
+
+The structural change is elevation: that system uses surface contrast rather
+than borders, so the 1.5px ink outlines came off everything and cards became
+white-on-sage. Type moved to Inter throughout, weight 900 standing in for the
+proprietary Wise Sans display face — that substitute is the spec's own
+recommendation.
+
+Two deliberate deviations:
+
+- **Lesson checkboxes use `inkDeep`, not primary.** A white tick on `#9fe870`
+  doesn't carry enough contrast.
+- **Stat cards are white, not sage.** Built sage first, which made them
+  invisible against the sage canvas — defeating the one rule the system is
+  built on.
+
+Primary green is reserved for actions, per the system's own instruction not to
+repurpose it as a status colour: "Give me another" is the CTA pill, the streak
+is a pale-green status badge, and the heatmap uses a green density ramp.
+
+**New dependency:** Inter loads from Google Fonts. Weight 900 needs the real
+font file; system fallbacks synthesize it badly.
+
+### Session log moved into the repo
+
+The log lives in `src/data/log.json` and ships with the build, so it's identical
+on every device with no accounts, tokens, or backend — git is the sync layer.
+
+This replaced a plan to sync via Google Drive or Dropbox, which would have meant
+OAuth, a token in browser storage, and an app registration. The log is three
+JSON blobs and some images; that's a file-sync problem, not a database one.
+
+Streak, totals and the heatmap were always *computed* from the log, so they keep
+working — "manual" means manual entry, not losing the visualizations. Entries
+sort by date on load, so the file can be appended to in any order.
+
+Sketch photos go in `public/sketches/` as real files, which also lifts them out
+of the ~5MB localStorage ceiling they shared as base64 data URIs.
+
+Trade-offs accepted:
+
+- A public repo means a public practice log.
+- Logging is a commit plus a ~1 minute rebuild.
+- Git keeps binaries forever — deleting a photo later doesn't shrink the repo,
+  so downscale before committing. Pages caps the published site around 1GB.
+
+Course lesson ticks stayed in `localStorage`: they change several times a
+session, and a commit per checkbox would be more friction than they're worth.
+They're per-device and don't sync.
+
+### Form spacing fixes
+
+- Added a global `box-sizing: border-box` reset. Inputs set `width: 100%` but
+  also carried 10px padding and a 1.5px border, so under content-box the notes
+  textarea rendered 23px wider than its card and spilled past the border.
+- Made the field label a flex column so a caption always sits above its control.
+  As a plain inline `<label>`, "Minutes" shared a line with its input and
+  collided, while "How it felt" — which wrapped a block `div` — did not.
+
+### Deployed to GitHub Pages
+
+Live at <https://stephenbarros.github.io/drawing/>.
+
+Set `base: "/drawing/"` and added `.github/workflows/deploy.yml` using the
+official `upload-pages-artifact` + `deploy-pages` flow. Pages source set to
+"GitHub Actions" via `gh api`. No `gh-pages` branch.
+
+The initial commit contained only the README — all app source was untracked
+until this point.
+
+Known warning, not a failure: `actions/checkout@v4`, `setup-node@v4` and
+`upload-artifact@v4` target Node 20, which GitHub is deprecating on runners, so
+they're forced onto Node 24. This concerns the actions' own runtime, not the
+`node-version: 20` build. Moving to the `@v5` actions will silence it.
