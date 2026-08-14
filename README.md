@@ -5,8 +5,43 @@ a set of public-domain drawing fundamentals books, a daily exercise
 generator, and progress tracking (streaks, a practice heatmap, and
 optional photos of your own sketches).
 
-Progress is stored locally in your browser (`localStorage`) — nothing is
-sent to a server, so it's per-device.
+## Logging a session
+
+The session log lives in [`src/data/log.json`](src/data/log.json) and is
+committed to the repo, so it is the same on every device you open the site
+on — no accounts, no backend, no sync to set up. Add an entry, commit, and
+the deploy workflow rebuilds the site with it.
+
+```json
+[
+  {
+    "date": "2026-08-13",
+    "category": "Gesture",
+    "exercise": "10 one-minute gesture sketches from photo references",
+    "minutes": 25,
+    "rating": 3,
+    "notes": "wrists still stiff, better by the last three",
+    "photo": "2026-08-13-gesture.jpg"
+  }
+]
+```
+
+Only `date`, `category` and `minutes` are required. Entries can be added in
+any order — the app sorts by date. `rating` is 1–5.
+
+For a sketch photo, drop the image in `public/sketches/` and put its
+filename in `photo`. **Downscale before committing** (~1600px, a few hundred
+KB): git keeps every binary forever, so deleting a photo later does not
+shrink the repo, and GitHub Pages caps the published site at about 1 GB.
+
+Streak, totals and the heatmap are all computed from this file, so they keep
+working without any tracking.
+
+Note that a public repo means a public practice log.
+
+Course lesson ticks are the exception — they stay in your browser's
+`localStorage`, since a commit per checkbox would be more friction than they
+are worth. They're per-device and don't sync.
 
 ## Development
 
@@ -39,5 +74,8 @@ that value has to change with it.
 src/
   App.jsx                  — the whole app (tabs, courses, exercises, progress)
   main.jsx                 — entry point
+  data/log.json            — your session log (edit this to log practice)
   lib/storagePolyfill.js   — localStorage-backed window.storage shim
+public/
+  sketches/                — sketch photos, served at /drawing/sketches/
 ```

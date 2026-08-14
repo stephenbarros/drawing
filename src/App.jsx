@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import logEntries from "./data/log.json";
 import {
-  Pencil, BookOpen, Target, TrendingUp, ExternalLink, Check,
-  ChevronDown, ChevronRight, Shuffle, Flame, X, Download, Library
+  Pencil, BookOpen, Target, TrendingUp, ExternalLink,
+  ChevronDown, ChevronRight, Shuffle, Flame, Library
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -282,17 +283,21 @@ export default function StudioLog() {
   const [tab, setTab] = useState("practice");
   const [loaded, setLoaded] = useState(false);
   const [progress, setProgress] = useState({});
-  const [log, setLog] = useState([]);
   const [openCourse, setOpenCourse] = useState(null);
 
+  // The session log is committed to the repo (src/data/log.json), so it is the
+  // same on every device rather than living in one browser's localStorage.
+  // Sorted here so entries can be appended to the file in any order.
+  const log = useMemo(
+    () => [...logEntries].sort((a, b) => b.date.localeCompare(a.date)),
+    []
+  );
+
+  // Lesson ticks stay per-device: they change several times a session, and a
+  // commit per checkbox would be far more friction than they are worth.
   useEffect(() => {
     (async () => {
-      const [p, l] = await Promise.all([
-        loadJSON("course-progress", {}),
-        loadJSON("practice-log", []),
-      ]);
-      setProgress(p);
-      setLog(l);
+      setProgress(await loadJSON("course-progress", {}));
       setLoaded(true);
     })();
   }, []);
@@ -303,26 +308,6 @@ export default function StudioLog() {
       saveJSON("course-progress", next);
       return next;
     });
-  }, []);
-
-  const addLogEntry = useCallback((entry) => {
-    const { photo, ...meta } = entry;
-    const id = Date.now();
-    setLog((prev) => {
-      const next = [{ id, date: todayISO(), hasPhoto: !!photo, ...meta }, ...prev];
-      saveJSON("practice-log", next);
-      return next;
-    });
-    if (photo) saveJSON(`photo:${id}`, photo);
-  }, []);
-
-  const deleteLogEntry = useCallback((id) => {
-    setLog((prev) => {
-      const next = prev.filter((e) => e.id !== id);
-      saveJSON("practice-log", next);
-      return next;
-    });
-    window.storage.delete(`photo:${id}`, false).catch(() => {});
   }, []);
 
   const streak = useMemo(() => {
@@ -358,7 +343,7 @@ export default function StudioLog() {
       <Header tab={tab} setTab={setTab} />
       <div style={{ padding: "24px 20px 40px", maxWidth: 720, margin: "0 auto" }}>
         {tab === "practice" && (
-          <PracticeTab addLogEntry={addLogEntry} streak={streak} recentLog={log.slice(0, 3)} />
+          <PracticeTab streak={streak} recentLog={log.slice(0, 3)} />
         )}
         {tab === "courses" && (
           <CoursesTab
@@ -368,9 +353,7 @@ export default function StudioLog() {
             setOpenCourse={setOpenCourse}
           />
         )}
-        {tab === "progress" && (
-          <ProgressTab log={log} streak={streak} deleteLogEntry={deleteLogEntry} />
-        )}
+        {tab === "progress" && <ProgressTab log={log} streak={streak} />}
         {tab === "library" && <LibraryTab />}
       </div>
     </div>
@@ -447,56 +430,15 @@ function Header({ tab, setTab }) {
 // ---------------------------------------------------------------------------
 // Practice tab
 // ---------------------------------------------------------------------------
-function PracticeTab({ addLogEntry, streak, recentLog }) {
+function PracticeTab({ streak, recentLog }) {
   const categories = Object.keys(EXERCISES);
   const [category, setCategory] = useState(categories[0]);
   const [exercise, setExercise] = useState(EXERCISES[categories[0]][0]);
-  const [minutes, setMinutes] = useState(20);
-  const [rating, setRating] = useState(3);
-  const [notes, setNotes] = useState("");
-  const [savedFlash, setSavedFlash] = useState(false);
-
-  const [photo, setPhoto] = useState(null); // resized base64 data URL, or null
-  const [photoBusy, setPhotoBusy] = useState(false);
 
   const rollExercise = () => {
     const list = EXERCISES[category];
     const pick = list[Math.floor(Math.random() * list.length)];
     setExercise(pick);
-  };
-
-  const handlePhotoPick = (e) => {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = ""; // allow picking the same file again later
-    if (!file) return;
-    setPhotoBusy(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        // downscale so the stored string stays small — this is a photo
-        // of your own sketch, not a document scan, so 900px is plenty
-        const maxDim = 900;
-        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setPhoto(canvas.toDataURL("image/jpeg", 0.72));
-        setPhotoBusy(false);
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const submit = () => {
-    addLogEntry({ category, exercise, minutes: Number(minutes) || 0, rating, notes, photo });
-    setNotes("");
-    setPhoto(null);
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 1800);
   };
 
   return (
@@ -551,96 +493,25 @@ function PracticeTab({ addLogEntry, streak, recentLog }) {
         </button>
       </Card>
 
-      <Card>
-        <SectionLabel>Log this session</SectionLabel>
-        <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
-          <label style={fieldLabelStyle}>
-            Minutes
-            <input
-              type="number"
-              min="1"
-              value={minutes}
-              onChange={(e) => setMinutes(e.target.value)}
-              style={{ ...inputStyle, width: 96 }}
-            />
-          </label>
-          <label style={fieldLabelStyle}>
-            How it felt
-            <div style={{ display: "flex", gap: 4 }}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setRating(n)}
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    border: `1.5px solid ${ink}`,
-                    background: n <= rating ? ink : "transparent",
-                    color: n <= rating ? paper : ink,
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </label>
-        </div>
-        <label style={{ ...fieldLabelStyle, alignItems: "stretch", marginBottom: 14 }}>
-          Notes (optional)
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            placeholder="What worked, what to revisit next time…"
-            style={{ ...inputStyle, width: "100%", resize: "vertical" }}
-          />
-        </label>
-
-        <div style={{ marginBottom: 16 }}>
-          <div style={fieldLabelStyle}>Photo of your sketch (optional)</div>
-          {photo ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-              <img
-                src={photo}
-                alt="Attached sketch"
-                style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 6, border: `1.5px solid ${ink}` }}
-              />
-              <button onClick={() => setPhoto(null)} style={ghostButtonStyle}>
-                <X size={12} /> Remove
-              </button>
-            </div>
-          ) : (
-            <label style={{ ...ghostButtonStyle, display: "inline-flex", marginTop: 6 }}>
-              {photoBusy ? "Processing…" : "Add photo"}
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handlePhotoPick}
-                style={{ display: "none" }}
-              />
-            </label>
-          )}
-        </div>
-
-        <button onClick={submit} style={solidButtonStyle}>
-          <Check size={14} /> {savedFlash ? "Saved to log" : "Log practice"}
-        </button>
-      </Card>
-
       {recentLog.length > 0 && (
         <Card>
           <SectionLabel>Recent sessions</SectionLabel>
-          {recentLog.map((e) => (
-            <div key={e.id} style={{ fontSize: 13, color: inkSoft, padding: "6px 0", borderBottom: `1px solid ${line}` }}>
+          {recentLog.map((e, i) => (
+            <div key={`${e.date}-${i}`} style={{ fontSize: 13, color: inkSoft, padding: "6px 0", borderBottom: `1px solid ${line}` }}>
               <strong style={{ color: ink }}>{e.date}</strong> · {e.category} · {e.minutes} min
             </div>
           ))}
         </Card>
       )}
+
+      <Card>
+        <SectionLabel>Logging a session</SectionLabel>
+        <div style={{ fontSize: 13.5, color: inkSoft, lineHeight: 1.5 }}>
+          Add an entry to <code style={codeStyle}>src/data/log.json</code> and commit —
+          it appears here and on Progress once the site rebuilds. The format is in
+          the README.
+        </div>
+      </Card>
     </div>
   );
 }
@@ -730,7 +601,7 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
 // ---------------------------------------------------------------------------
 // Progress tab — graphite-density heatmap instead of a generic green grid
 // ---------------------------------------------------------------------------
-function ProgressTab({ log, streak, deleteLogEntry }) {
+function ProgressTab({ log, streak }) {
   const totalMinutes = log.reduce((s, e) => s + (e.minutes || 0), 0);
   const totalSessions = log.length;
 
@@ -796,61 +667,35 @@ function ProgressTab({ log, streak, deleteLogEntry }) {
         <SectionLabel>Session log</SectionLabel>
         {log.length === 0 && (
           <div style={{ fontSize: 13.5, color: inkSoft, padding: "10px 0" }}>
-            Nothing logged yet — head to Today and record your first session.
+            Nothing logged yet — add your first entry to{" "}
+            <code style={codeStyle}>src/data/log.json</code>.
           </div>
         )}
-        {log.map((e) => (
-          <LogEntryRow key={e.id} entry={e} onDelete={deleteLogEntry} />
+        {log.map((e, i) => (
+          <LogEntryRow key={`${e.date}-${i}`} entry={e} />
         ))}
       </Card>
     </div>
   );
 }
 
-function LogEntryRow({ entry: e, onDelete }) {
-  const [photo, setPhoto] = useState(null);
-  const [showPhoto, setShowPhoto] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const toggle = async () => {
-    if (showPhoto) { setShowPhoto(false); return; }
-    if (!photo) {
-      setLoading(true);
-      try {
-        const res = await window.storage.get(`photo:${e.id}`, false);
-        setPhoto(res ? res.value : null);
-      } catch {
-        setPhoto(null);
-      }
-      setLoading(false);
-    }
-    setShowPhoto(true);
-  };
-
+function LogEntryRow({ entry: e }) {
+  const rating = Number(e.rating) || 0;
   return (
     <div style={{ padding: "10px 0", borderBottom: `1px solid ${line}`, fontSize: 13.5 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <div><strong>{e.date}</strong> · {e.category} · {e.minutes} min · {"●".repeat(e.rating)}{"○".repeat(5 - e.rating)}</div>
-          <div style={{ color: inkSoft, marginTop: 2 }}>{e.exercise}</div>
-          {e.notes && <div style={{ color: inkSoft, fontStyle: "italic", marginTop: 2 }}>{e.notes}</div>}
-          {e.hasPhoto && (
-            <button onClick={toggle} style={{ ...ghostButtonStyle, marginTop: 6, padding: "4px 10px" }}>
-              {loading ? "Loading…" : showPhoto ? "Hide sketch" : "View sketch"}
-            </button>
-          )}
-        </div>
-        <button
-          onClick={() => onDelete(e.id)}
-          style={{ background: "none", border: "none", color: inkSoft, cursor: "pointer", padding: 4 }}
-        >
-          <X size={14} />
-        </button>
+      <div>
+        <strong>{e.date}</strong> · {e.category} · {e.minutes} min
+        {rating > 0 && <> · {"●".repeat(rating)}{"○".repeat(5 - rating)}</>}
       </div>
-      {showPhoto && photo && (
+      {e.exercise && <div style={{ color: inkSoft, marginTop: 2 }}>{e.exercise}</div>}
+      {e.notes && <div style={{ color: inkSoft, fontStyle: "italic", marginTop: 2 }}>{e.notes}</div>}
+      {e.photo && (
+        // Sketches live in public/sketches/ and ship with the site. BASE_URL
+        // keeps these correct under the /drawing/ sub-path.
         <img
-          src={photo}
-          alt="Sketch from this session"
+          src={`${import.meta.env.BASE_URL}sketches/${e.photo}`}
+          alt={`Sketch from ${e.date}`}
+          loading="lazy"
           style={{ maxWidth: "100%", borderRadius: 8, border: `1.5px solid ${ink}`, marginTop: 10 }}
         />
       )}
@@ -1018,9 +863,5 @@ function StatCard({ label, value }) {
   );
 }
 
-// Flex column so a label's caption always sits above its control — as a plain
-// inline <label>, a caption wrapping an <input> shared its line and collided.
-const fieldLabelStyle = { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, fontSize: 11.5, color: inkSoft, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" };
-const inputStyle = { fontFamily: bodyFont, fontSize: 14, padding: "7px 10px", border: `1.5px solid ${ink}`, borderRadius: 6, background: paper, color: ink, maxWidth: "100%" };
-const solidButtonStyle = { display: "inline-flex", alignItems: "center", gap: 6, fontFamily: bodyFont, fontSize: 13.5, fontWeight: 600, padding: "9px 16px", background: ink, color: paper, border: "none", borderRadius: 7, cursor: "pointer" };
+const codeStyle = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "0.92em", background: paperDark, padding: "1px 5px", borderRadius: 4, color: ink };
 const ghostButtonStyle = { display: "inline-flex", alignItems: "center", gap: 6, fontFamily: bodyFont, fontSize: 12.5, fontWeight: 500, padding: "6px 12px", background: "transparent", color: inkSoft, border: `1px solid ${line}`, borderRadius: 7, cursor: "pointer" };
