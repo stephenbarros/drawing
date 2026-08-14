@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import logEntries from "./data/log.json";
 import {
   Pencil, BookOpen, TrendingUp, ExternalLink,
-  ChevronDown, ChevronRight, Shuffle, Flame, Library
+  ChevronDown, Shuffle, Flame, Library
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -547,7 +547,11 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
 
         return (
           <Card key={course.id} onClick={() => setOpenCourse(isOpen ? null : course.id)} clickable>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", cursor: "pointer" }}>
+            <div
+              role="button"
+              aria-expanded={isOpen}
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: space.lg, cursor: "pointer" }}
+            >
               <div>
                 <div style={{ fontFamily: displayFont, fontSize: 24, fontWeight: 600, lineHeight: "31.2px", letterSpacing: "-0.48px" }}>
                   {course.book}
@@ -556,7 +560,29 @@ function CoursesTab({ progress, toggleLesson, openCourse, setOpenCourse }) {
                   {course.author} — {course.tagline}
                 </div>
               </div>
-              {isOpen ? <ChevronDown size={20} color={body} /> : <ChevronRight size={20} color={body} />}
+              {/* button-icon-circular, holding a disclosure chevron: down when
+                  closed, rotated to up when open. A right-facing chevron would
+                  promise navigation to a new view, which this is not. The
+                  circle takes the sage fill because the system's canvas fill
+                  would vanish against the white card. */}
+              <div
+                aria-hidden="true"
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 36,
+                  height: 36,
+                  borderRadius: radius.pill,
+                  background: canvasSoft,
+                  color: ink,
+                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              >
+                <ChevronDown size={20} />
+              </div>
             </div>
 
             <div style={{ marginTop: space.lg, marginBottom: isOpen ? space.xl : 0 }}>
