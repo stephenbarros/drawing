@@ -407,7 +407,7 @@ function Header({ tab, setTab }) {
             a practice ledger
           </span>
         </div>
-        <div style={{ display: "flex", gap: 2 }}>
+        <div className="tab-bar" style={{ display: "flex", gap: 2 }}>
           {tabs.map(({ id, label, icon: Icon }) => {
             const active = tab === id;
             return (
@@ -561,12 +561,12 @@ function PracticeTab({ addLogEntry, streak, recentLog }) {
               min="1"
               value={minutes}
               onChange={(e) => setMinutes(e.target.value)}
-              style={inputStyle}
+              style={{ ...inputStyle, width: 96 }}
             />
           </label>
           <label style={fieldLabelStyle}>
             How it felt
-            <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+            <div style={{ display: "flex", gap: 4 }}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
@@ -588,14 +588,14 @@ function PracticeTab({ addLogEntry, streak, recentLog }) {
             </div>
           </label>
         </div>
-        <label style={{ ...fieldLabelStyle, display: "block", marginBottom: 14 }}>
+        <label style={{ ...fieldLabelStyle, alignItems: "stretch", marginBottom: 14 }}>
           Notes (optional)
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="What worked, what to revisit next time…"
-            style={{ ...inputStyle, width: "100%", resize: "vertical", marginTop: 4 }}
+            style={{ ...inputStyle, width: "100%", resize: "vertical" }}
           />
         </label>
 
@@ -1018,7 +1018,9 @@ function StatCard({ label, value }) {
   );
 }
 
-const fieldLabelStyle = { fontSize: 11.5, color: inkSoft, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" };
-const inputStyle = { fontFamily: bodyFont, fontSize: 14, padding: "7px 10px", border: `1.5px solid ${ink}`, borderRadius: 6, background: paper, color: ink, marginTop: 4 };
+// Flex column so a label's caption always sits above its control — as a plain
+// inline <label>, a caption wrapping an <input> shared its line and collided.
+const fieldLabelStyle = { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, fontSize: 11.5, color: inkSoft, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" };
+const inputStyle = { fontFamily: bodyFont, fontSize: 14, padding: "7px 10px", border: `1.5px solid ${ink}`, borderRadius: 6, background: paper, color: ink, maxWidth: "100%" };
 const solidButtonStyle = { display: "inline-flex", alignItems: "center", gap: 6, fontFamily: bodyFont, fontSize: 13.5, fontWeight: 600, padding: "9px 16px", background: ink, color: paper, border: "none", borderRadius: 7, cursor: "pointer" };
 const ghostButtonStyle = { display: "inline-flex", alignItems: "center", gap: 6, fontFamily: bodyFont, fontSize: 12.5, fontWeight: 500, padding: "6px 12px", background: "transparent", color: inkSoft, border: `1px solid ${line}`, borderRadius: 7, cursor: "pointer" };

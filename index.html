@@ -5,8 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Studio Log — Drawing Practice</title>
     <style>
+      /* Inputs set width:100% but also carry padding and a border, so
+         content-box sizing made them overflow their card. */
+      *, *::before, *::after { box-sizing: border-box; }
       html, body, #root { height: 100%; margin: 0; }
       body { background: #DCD1B2; }
+
+      /* All four tabs need ~426px; a phone offers ~335px, which pushed
+         "Library" off-screen. Drop the icons and tighten padding to fit. */
+      @media (max-width: 460px) {
+        .tab-bar button { padding-left: 10px; padding-right: 10px; font-size: 13px; }
+        .tab-bar button svg { display: none; }
+      }
     </style>
   </head>
   <body>
