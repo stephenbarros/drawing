@@ -5,6 +5,40 @@ records the reasoning, which is the part the code doesn't explain on its own.
 
 ## 2026-08-14
 
+### Corrected 25 lesson page references
+
+Rendering each cited page beside its lesson made it obvious where the citation
+was wrong. 25 of 83 refs were repointed. The lessons themselves are unchanged;
+only the page numbers moved, and each new one was confirmed against the page's
+own heading or plate caption.
+
+**Fun With a Pencil — 16 of 17 refs.** Most were one or two pages early, and a
+few pointed somewhere else entirely: `fp-2-5` ("Construct a hand and a pair of
+feet") cited p. 71, "Freak Hats", when The Hand and Feet are p. 72–73;
+`fp-1-2` ("Add a second line to turn the ball into a head") cited p. 35–39,
+"Brats", when the page actually titled "We Add Another Line to the Ball" is
+p. 21. `fp-1-5` wanted the square-grid caricature method and cited p. 32,
+"Projection", a different technique — the grid is p. 33, "Variety by
+Distortion". Fixed by OCR'ing all 122 pages into a heading index and matching
+each lesson to the page that teaches it.
+
+**Drawing the Head and Hands — 9 of 18 refs.** Every lesson here also names
+plates, which gave an independent check: resolve the plate to its page and see
+whether it lands in the cited range. Four did not. In all four the plates were
+right and the range was wrong — `hh-1-2` ("Simplified skull landmarks over the
+ball") cited p. 19–24, but Plates 5–6, "Simplified bone structure" and "The
+bony parts within the construction", are on p. 27–28. The other five `~p.`
+refs contained their plates but had loose ends (`hh-2-2` cited p. 75–81 for
+plates spanning p. 81–84), so all nine were rewritten to the exact plate span.
+Every `~` is gone from this book; the refs now run monotonically from p. 21 to
+p. 147, which they did not before.
+
+The 31 `~p.` refs that remain, in Successful Drawing, Figure Drawing and
+Creative Illustration, are the PDF-index ones described above. They are
+accurate as-is. They would read better as printed page numbers, but converting
+them means renumbering against a different scheme and is left for its own
+change.
+
 ### Per-course PDF links
 
 Each course cell links to its scan, opposite the lesson count. Lessons cite
